@@ -1,8 +1,14 @@
 import React from 'react';
 import { GetStaticProps } from 'next';
 import Link from 'next/link';
-import api from '../services/api';
-import Layout from '../components/Layout';
+import api from '@services/api';
+import Layout from '@components/Layout';
+
+import logoImg from '@static/images/logo.svg';
+import landingImg from '@static/images/landing.svg';
+import studyIcon from '@static/images/icons/study.svg';
+import giveClassesIcon from '@static/images/icons/give-classes.svg';
+import purpleHeartIcon from '@static/images/icons/purple-heart.svg';
 
 import {
   PageLanding,
@@ -12,13 +18,7 @@ import {
   LogoContainer,
   TotalConnection,
   HeroImage,
-} from './Landing/styles';
-
-const logoImg = '/images/logo.svg';
-const landingImg = '/images/landing.svg';
-const studyIcon = '/images/icons/study.svg';
-const giveClassesIcon = '/images/icons/give-classes.svg';
-const purpleHeartIcon = '/images/icons/purple-heart.svg';
+} from '@styles-page/landing';
 
 interface LandingProps {
   totalConnection : number
@@ -74,6 +74,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return {
     props: { totalConnection: data?.totalConnection },
+    revalidate: true,
   };
 };
 

@@ -3,8 +3,8 @@ import Link from 'next/link';
 
 import { PageHeader as PageHeaderCss, TopBarContainer, HeaderContent } from './styles';
 
-const logoImg = '/images/logo.svg';
-const backIcon = '/images/icons/back.svg';
+import logoImg from '@static/images/logo.svg';
+import backIcon from '@static/images/icons/back.svg';
 
 interface PageHeaderProps {
   title: string;

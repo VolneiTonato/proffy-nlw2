@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import { TextareaBlock } from '../../components/Textarea/styles';
-import { InputBlock } from '../../components/Input/styles';
-import { HeaderContent } from '../../components/PageHeader/styles';
-import { SelectBlock } from '../../components/Select/styles';
+import { TextareaBlock } from '@components/Textarea/styles';
+import { InputBlock } from '@components/Input/styles';
+import { HeaderContent } from '@components/PageHeader/styles';
+import {SelectBlock} from '@components/Select/styles'
 
 export const PageTeacherForm = styled.div`
     width: 100vw;

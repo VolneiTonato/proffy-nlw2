@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express'
 import CreateUserClassesSchedule, { UserClasseScheduleDTO } from '../services/custom-default/CreateUserClassesSchedule'
 import ListClassesSchedule, {QueryDTO} from '../services/custom-default/ListClassesSchedule'
 import AppError from '../utils/AppErrorUtils'
+import { getRepository } from 'typeorm'
+import Classe from '../entities/Classe'
 
 
 
@@ -13,6 +15,18 @@ export default class ClassesController {
             const filtro:QueryDTO = req.query as any
 
             const classes = await new ListClassesSchedule(filtro).execute()
+
+            res.json(classes)
+
+        }catch(err){
+            next(new AppError(err, '400'))
+        }
+    }
+
+    async showAll(req: Request, res: Response, next: NextFunction) {
+        
+        try{
+            const classes = await getRepository(Classe).find({select: ['id', 'subject']})
 
             res.json(classes)
 

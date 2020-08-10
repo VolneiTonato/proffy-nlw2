@@ -10,6 +10,7 @@ const classeController = new ClassesController()
 const router = Router();
 
 router.route('/').get(ValidationMiddleware(ValidateClassesCreateUserClasseScheduleFilter()),classeController.index);
+router.route('/all').get(classeController.showAll);
 router.route('/').post(ValidationMiddleware(ValidateClassesCreateUserClasseScheduleCreate()), classeController.create);
 
 export default {

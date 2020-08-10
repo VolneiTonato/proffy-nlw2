@@ -2,14 +2,14 @@ import React, {
   useState, useCallback, ChangeEvent, FormEvent,
 } from 'react';
 import { GetStaticProps } from 'next';
-import api from '../../services/api';
-import PageHeader from '../../components/PageHeader';
-import Input from '../../components/Input';
-import Textarea from '../../components/Textarea';
-import Select from '../../components/Select';
-import { PageTeacherForm, Main, ScheduleItem } from './styles';
-
-const warningIcon = '/images/icons/warning.svg';
+import api from '@services/api';
+import PageHeader from '@components/PageHeader';
+import Input from '@components/Input';
+import Textarea from '@components/Textarea';
+import Select from '@components/Select';
+import { PageTeacherForm, Main, ScheduleItem } from '@styles-page/give-classes';
+import DateUtils from '@utils/date-utils'
+import warningIcon from '@static/images/icons/warning.svg';
 
 interface IShedule {
   week_day: string
@@ -25,18 +25,19 @@ interface IDataForm{
   subject:string
   cost: number
 }
-/*
-export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await axios.get<Veiculo[]>(
-    'https://parallelum.com.br/fipe/api/v1/carros/marcas',
-  );
 
-  return {
-    props: { veiculos: data },
-  };
-}; */
 
-const TeacherForm = () => {
+interface ClasseProps {
+  id: string
+  subject: string
+}
+
+
+interface TeacherFormProps {
+  classes: ClasseProps[]
+}
+
+const TeacherForm:React.FC<TeacherFormProps> = ({classes}) => {
   const [sheduleItems, setSheduleItems] = useState<IShedule[]>([{ from: '', to: '', week_day: '' }]);
 
   const [data, setData] = useState<IDataForm>({
@@ -47,6 +48,14 @@ const TeacherForm = () => {
     name: '',
     whatsapp: '',
   });
+
+  if (!classes)
+    return <h1>Sem Matérias no momento!</h1>
+
+
+  const optionsSubject = classes.map(classe => {
+    return { value: classe.subject, label: classe.subject }
+  })
 
   const addSheduleItemHandle = useCallback(() => {
     setSheduleItems([...sheduleItems, { from: '', to: '', week_day: '' }]);
@@ -102,15 +111,7 @@ const TeacherForm = () => {
               label="Matéria"
               value={data.subject}
               onChange={observableChangeDataForm}
-              options={[
-                { value: 'Artes', label: 'Artes' },
-                { value: 'Biologia', label: 'Biologia' },
-                { value: 'Desenvolvimento', label: 'Desenvolvimento' },
-                { value: 'PHP', label: 'PHP' },
-                { value: 'Ciências', label: 'Ciências' },
-                { value: 'Português', label: 'Português' },
-                { value: 'Matemática', label: 'Matemática' },
-              ]}
+              options={optionsSubject}
             />
 
             <Input name="cost" defaultValue={data.cost} label="Custo da sua hora por aula" onChange={observableChangeDataForm} />
@@ -132,15 +133,7 @@ const TeacherForm = () => {
                   label="Dia da semana"
                   value={shedule.week_day}
                   onChange={(e) => observableChangeSheduleForm(e, index)}
-                  options={[
-                    { value: '0', label: 'Domingo' },
-                    { value: '1', label: 'Segunda-feira' },
-                    { value: '2', label: 'Terça-feria' },
-                    { value: '3', label: 'Quarta-feira' },
-                    { value: '4', label: 'Quinta-feira' },
-                    { value: '5', label: 'Sexta-feira' },
-                    { value: '6', label: 'Sábado' },
-                  ]}
+                  options={DateUtils.diasSemana()}
                 />
                 <Input value={shedule.from} name="from" onChange={(e) => observableChangeSheduleForm(e, index)} label="Das" type="time" />
                 <Input value={shedule.to} name="to" onChange={(e) => observableChangeSheduleForm(e, index)} label="Até" type="time" />
@@ -167,6 +160,16 @@ const TeacherForm = () => {
       </Main>
     </PageTeacherForm>
   );
+};
+
+
+export const getStaticProps: GetStaticProps = async () => {
+  const { data } = await api.get('/classes/all');
+
+  return {
+    props: { classes: data },
+    revalidate: 1
+  };
 };
 
 export default TeacherForm;
