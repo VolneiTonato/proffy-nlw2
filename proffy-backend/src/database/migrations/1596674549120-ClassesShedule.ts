@@ -1,7 +1,6 @@
-import {MigrationInterface, QueryRunner, Table} from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class ClassesSchedule1596674549120 implements MigrationInterface {
-
     private table = new Table({
         name: 'schedules',
         columns: [
@@ -16,41 +15,39 @@ export class ClassesSchedule1596674549120 implements MigrationInterface {
             {
                 name: 'week_day',
                 type: 'int',
-                isNullable:false,
+                isNullable: false,
             },
             {
                 name: 'from',
                 type: 'int',
-                isNullable:false,
+                isNullable: false,
             },
             {
                 name: 'to',
                 type: 'int',
-                isNullable:false,
+                isNullable: false,
             },
             {
                 name: 'created_at',
                 type: 'timestamp',
                 default: 'now()',
                 isNullable: false,
-              },
-        
-              {
+            },
+
+            {
                 name: 'updated_at',
                 type: 'timestamp',
                 default: 'now()',
                 isNullable: false,
-              },
-        ]
-    })
+            },
+        ],
+    });
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-
         await queryRunner.createTable(this.table);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.dropTable(this.table);
     }
-
 }

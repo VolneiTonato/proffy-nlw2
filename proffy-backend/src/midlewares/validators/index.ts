@@ -14,12 +14,13 @@ const runValidationChain = async (
     return req;
 };
 
-export const ValidationMiddleware = ( validations: Array<ValidationChain | ValidationChain[]>, ...rest: Array<ValidationChain | ValidationChain[]>) => {
+export const ValidationMiddleware = (
+    validations: Array<ValidationChain | ValidationChain[]>,
+    ...rest: Array<ValidationChain | ValidationChain[]>
+) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
-
-            if(rest)
-                validations = [...validations, ...rest]
+            if (rest) validations = [...validations, ...rest];
 
             await runValidationChain(validations, req);
 

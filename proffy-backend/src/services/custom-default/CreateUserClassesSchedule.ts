@@ -1,91 +1,108 @@
-import { getRepository, getConnection } from 'typeorm'
-import User from '../../entities/User'
-import Classe from '../../entities/Classe'
-import Schedule from '../../entities/Schedule'
-import TimeUtils from '../../utils/timeUtils'
+import { getRepository, getConnection } from 'typeorm';
+import User from '../../entities/User';
+import Classe from '../../entities/Classe';
+import Schedule from '../../entities/Schedule';
+import TimeUtils from '../../utils/timeUtils';
 
 interface ScheduleDTO {
-    week_day: number
-    to: string
-    from: string
+    week_day: number;
+    to: string;
+    from: string;
 }
 
 interface ClasseDTO {
-    cost: number
-    subject: string
-    schedules: ScheduleDTO[]
+    cost: number;
+    subject: string;
+    schedules: ScheduleDTO[];
 }
 
 interface UserDTO extends ClasseDTO {
-    name: string
-    avatar: string
-    bio: string
-    whatsapp: string
+    name: string;
+    avatar: string;
+    bio: string;
+    whatsapp: string;
 }
 
-export type UserClasseScheduleDTO = UserDTO
-
+export type UserClasseScheduleDTO = UserDTO;
 
 export default class CreateUserClassesScheduleService {
-    constructor(private userClasseSchedule: UserClasseScheduleDTO) { }
-
+    constructor(private userClasseSchedule: UserClasseScheduleDTO) {}
 
     async execute() {
+        const dataSave = await getConnection().transaction(
+            async transactionalEntityManager => {
+                const userRepository = getRepository(User);
 
-        return await getConnection().transaction(async transactionalEntityManager => {
+                let user = null;
 
-            const userRepository = getRepository(User)
-
-            let user = null
-
-            const userExists = await userRepository.findOne({name: this.userClasseSchedule.name, whatsapp: this.userClasseSchedule.whatsapp})
-
-            if(!userExists){
-                const userSave = await transactionalEntityManager.save(getRepository(User).create({
-                    avatar: this.userClasseSchedule.avatar,
-                    bio: this.userClasseSchedule.bio,
+                const userExists = await userRepository.findOne({
                     name: this.userClasseSchedule.name,
-                    whatsapp: this.userClasseSchedule.whatsapp
-                }))
+                    whatsapp: this.userClasseSchedule.whatsapp,
+                });
 
-                user = userSave
-            }else{
-                user = userExists
-            }
+                if (!userExists) {
+                    const userSave = await transactionalEntityManager.save(
+                        getRepository(User).create({
+                            avatar: this.userClasseSchedule.avatar,
+                            bio: this.userClasseSchedule.bio,
+                            name: this.userClasseSchedule.name,
+                            whatsapp: this.userClasseSchedule.whatsapp,
+                        }),
+                    );
 
-            if(!user)
-                throw new Error(`User inválido!`)
+                    user = userSave;
+                } else {
+                    user = userExists;
+                }
 
-            
+                if (!user) throw new Error(`User inválido!`);
 
+                let classe: Classe = {} as Classe;
 
-            const classeSave = await transactionalEntityManager.save(getRepository(Classe).create({
-                cost: this.userClasseSchedule.cost,
-                userId: user.id,
-                subject: this.userClasseSchedule.subject,
-            }))
+                const classeRepository = getRepository(Classe);
 
-            const schedules = this.userClasseSchedule.schedules.map(({ from, to, week_day }) => {
-                const schedule = new Schedule()
+                const classeExists = await classeRepository.findOne({
+                    subject: this.userClasseSchedule.subject,
+                });
 
-                schedule.from = TimeUtils.convertHourToMinutes(from)
-                schedule.to = TimeUtils.convertHourToMinutes(to)
-                schedule.weekDay = week_day
-                schedule.classId = classeSave.id
+                if (!classeExists) {
+                    const classeSave = await transactionalEntityManager.save(
+                        getRepository(Classe).create({
+                            cost: this.userClasseSchedule.cost,
+                            userId: user.id,
+                            subject: this.userClasseSchedule.subject,
+                        }),
+                    );
+                    classe = classeSave;
+                } else {
+                    classe = classeExists;
+                }
 
-                return schedule
-            }) as Schedule[]
+                const schedules = this.userClasseSchedule.schedules.map(
+                    ({ from, to, week_day }) => {
+                        const schedule = new Schedule();
 
-            const schedulesSave = await transactionalEntityManager.save<Schedule[]>(schedules)
+                        schedule.from = TimeUtils.convertHourToMinutes(from);
+                        schedule.to = TimeUtils.convertHourToMinutes(to);
+                        schedule.weekDay = week_day;
+                        schedule.classId = classe.id;
 
+                        return schedule;
+                    },
+                ) as Schedule[];
 
-            return {
-                user,
-                classeSave,
-                schedulesSave
-            }
+                const schedulesSave = await transactionalEntityManager.save<
+                    Schedule[]
+                >(schedules);
 
-        })
+                return {
+                    user,
+                    classe,
+                    schedulesSave,
+                };
+            },
+        );
 
+        return dataSave;
     }
 }

@@ -1,7 +1,11 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm";
+import {
+    MigrationInterface,
+    QueryRunner,
+    Table,
+    TableForeignKey,
+} from 'typeorm';
 
 export class Connections1596674943459 implements MigrationInterface {
-
     private table = new Table({
         name: 'connections',
         columns: [
@@ -32,9 +36,8 @@ export class Connections1596674943459 implements MigrationInterface {
                 default: 'now()',
                 isNullable: false,
             },
-        ]
-    })
-
+        ],
+    });
 
     private foreingKey = new TableForeignKey({
         columnNames: ['user_id'],
@@ -45,19 +48,15 @@ export class Connections1596674943459 implements MigrationInterface {
         onUpdate: 'CASCADE',
     });
 
-
     public async up(queryRunner: QueryRunner): Promise<void> {
-
         await queryRunner.createTable(this.table);
 
         await queryRunner.createForeignKey(this.table, this.foreingKey);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-
         await queryRunner.dropForeignKey(this.table, this.foreingKey);
 
         await queryRunner.dropTable(this.table);
     }
-
 }

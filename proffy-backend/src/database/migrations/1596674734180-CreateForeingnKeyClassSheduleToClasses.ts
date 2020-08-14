@@ -1,10 +1,12 @@
 import {
-    MigrationInterface, QueryRunner, TableColumn,
+    MigrationInterface,
+    QueryRunner,
+    TableColumn,
     TableForeignKey,
-} from "typeorm";
+} from 'typeorm';
 
-export class CreateForeingnKeyClassScheduleToClasses1596674734180 implements MigrationInterface {
-
+export class CreateForeingnKeyClassScheduleToClasses1596674734180
+    implements MigrationInterface {
     private tableName = 'schedules';
 
     private column = new TableColumn({
@@ -29,7 +31,6 @@ export class CreateForeingnKeyClassScheduleToClasses1596674734180 implements Mig
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-
         await queryRunner.dropForeignKey(this.tableName, this.foreingKey);
 
         await queryRunner.dropColumn(this.tableName, this.column.name);

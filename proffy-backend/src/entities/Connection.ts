@@ -5,22 +5,18 @@ import {
     UpdateDateColumn,
     JoinColumn,
     PrimaryGeneratedColumn,
-    OneToOne
+    OneToOne,
 } from 'typeorm';
 
-import User from './User'
-
+import User from './User';
 
 @Entity({ name: 'connections' })
 class Connection {
-
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({name: 'user_id'})
+    @Column({ name: 'user_id' })
     userId: string;
-
-    
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
@@ -31,9 +27,6 @@ class Connection {
     @OneToOne(() => User, { eager: true })
     @JoinColumn({ name: 'user_id' })
     user: User;
-
-
-
 }
 
 export default Connection;

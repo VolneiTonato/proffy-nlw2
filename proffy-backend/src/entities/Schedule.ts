@@ -8,15 +8,14 @@ import {
     ManyToOne,
 } from 'typeorm';
 
-import Classe from './Classe'
-
+import Classe from './Classe';
 
 @Entity({ name: 'schedules' })
 class Schedule {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({name:'week_day'})
+    @Column({ name: 'week_day' })
     weekDay: number;
 
     @Column()
@@ -25,21 +24,18 @@ class Schedule {
     @Column()
     to: number;
 
-    
-    @Column({name: 'class_id'})
-    classId: string
+    @Column({ name: 'class_id' })
+    classId: string;
 
-    @CreateDateColumn({name:'created_at'})
+    @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
-  
-    @UpdateDateColumn({name:'updated_at'})
+
+    @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
 
-
-    @ManyToOne(() => Classe, {eager: true})
-    @JoinColumn({name: 'class_id', referencedColumnName: 'id'})
-    classe: Classe
-
+    @ManyToOne(() => Classe, { eager: true })
+    @JoinColumn({ name: 'class_id', referencedColumnName: 'id' })
+    classe: Classe;
 }
 
 export default Schedule;
