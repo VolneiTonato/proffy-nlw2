@@ -1,175 +1,335 @@
-import React, {
-  useState, useCallback, ChangeEvent, FormEvent,
-} from 'react';
+import React, { useState, useCallback, ChangeEvent, useRef } from 'react';
 import { GetStaticProps } from 'next';
 import api from '@services/api';
 import PageHeader from '@components/PageHeader';
-import Input from '@components/Input';
-import Textarea from '@components/Textarea';
-import Select from '@components/Select';
+import Input from '@components/ElementsForm/Inputs/Input';
+import InputNumber from '@components/ElementsForm/Inputs/InputNumber';
+import Textarea from '@components/ElementsForm/Textarea';
+import InputMask from '@components/ElementsForm/Inputs/InputMask';
+import * as Yup from 'yup';
+import Select from '@components/ElementsForm/Select';
 import { PageTeacherForm, Main, ScheduleItem } from '@styles-page/give-classes';
-import DateUtils from '@utils/date-utils'
+import dateUtils from '@utils/date';
 import warningIcon from '@static/images/icons/warning.svg';
+import Layout from '@components/Layout';
+import { FormHandles, Scope } from '@unform/core';
+import { Form } from '@unform/web';
+import formUtils from '@utils/form';
+import { uuid } from 'uuidv4';
+import numberUtils from '@utils/number';
+import { useToast } from '@context/ToastContext';
 
-interface IShedule {
-  week_day: string
-  from: string
-  to: string
+interface Ischedule {
+    week_day: string;
+    from: string;
+    to: string;
 }
 
-interface IDataForm{
-  name: string
-  avatar:string
-  whatsapp:string
-  bio:string
-  subject:string
-  cost: number
+interface IDataForm {
+    name: string;
+    avatar: string;
+    whatsapp: string;
+    bio: string;
+    subject: string;
+    cost: number;
 }
-
 
 interface ClasseProps {
-  id: string
-  subject: string
+    id: string;
+    subject: string;
 }
-
 
 interface TeacherFormProps {
-  classes: ClasseProps[]
+    classes: ClasseProps[];
 }
 
-const TeacherForm:React.FC<TeacherFormProps> = ({classes}) => {
-  const [sheduleItems, setSheduleItems] = useState<IShedule[]>([{ from: '', to: '', week_day: '' }]);
+const TeacherForm: React.FC<TeacherFormProps> = ({ classes }) => {
+    const { addToast } = useToast();
+    const [scheduleItems, setscheduleItems] = useState<Ischedule[]>([
+        { from: '', to: '', week_day: '' },
+    ]);
 
-  const [data, setData] = useState<IDataForm>({
-    avatar: '',
-    bio: '',
-    cost: 0.00,
-    subject: '',
-    name: '',
-    whatsapp: '',
-  });
+    const formRef = useRef<FormHandles>(null);
 
-  if (!classes)
-    return <h1>Sem Matérias no momento!</h1>
-
-
-  const optionsSubject = classes.map(classe => {
-    return { value: classe.subject, label: classe.subject }
-  })
-
-  const addSheduleItemHandle = useCallback(() => {
-    setSheduleItems([...sheduleItems, { from: '', to: '', week_day: '' }]);
-  }, [sheduleItems]);
-
-  const createHandle = useCallback(async (e: FormEvent) => {
-    e.preventDefault();
-
-    const { data: response } = await api.post('classes', { ...data, shedules: sheduleItems });
-  }, [sheduleItems, data]);
-
-  const observableChangeDataForm = useCallback((e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { value, name } = e.currentTarget;
-
-    setData({ ...data, [name]: value });
-  }, [data]);
-
-  const observableChangeSheduleForm = useCallback((e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, position: number) => {
-    const { value, name } = e.currentTarget;
-
-    const newshedules = sheduleItems.map((sheduleItem, index) => {
-      if (index === position) { return { ...sheduleItem, [name]: value }; }
-
-      return sheduleItem;
+    const [data, setData] = useState<IDataForm>({
+        avatar: '',
+        bio: '',
+        cost: 0.0,
+        subject: '',
+        name: '',
+        whatsapp: '',
     });
 
-    setSheduleItems(newshedules);
-  }, [sheduleItems]);
+    const addscheduleItemHandle = useCallback(() => {
+        setscheduleItems([
+            ...scheduleItems,
+            { from: '', to: '', week_day: '' },
+        ]);
+    }, [scheduleItems]);
 
-  return (
-    <PageTeacherForm>
-      <PageHeader
-        title="Que incrível que você quer dar aulas."
-        description="O primeiro passo é preencher esse formulário de inscrição"
-      />
-      <Main>
-        <form onSubmit={createHandle}>
-          <fieldset>
-            <legend>Seus dados</legend>
+    const createHandle = useCallback(async () => {
+        try {
+            formRef.current?.setErrors([]);
 
-            <Input name="name" value={data.name} label="Nome completo" onChange={observableChangeDataForm} />
+            const schemaGeral = Yup.object().shape({
+                name: Yup.string().required('Matéria obrigatório'),
+                avatar: Yup.string()
+                    .required('Avatar obrigatório')
+                    .url('Informe uma url válida para o Avatar'),
+                whatsapp: Yup.string().required('Whatsapp obrigatório'),
+                cost: Yup.string()
+                    .required('Custo obrigatório')
+                    .transform((value: string, originalValue: string) => {
+                        const newValue = numberUtils.numbers.onlyNumber(value);
 
-            <Input name="avatar" value={data.avatar} label="Avatar" onChange={observableChangeDataForm} />
+                        if (!newValue || newValue <= 0.01) return '';
 
-            <Input name="whatsapp" value={data.whatsapp} label="WhatsApp" onChange={observableChangeDataForm} />
+                        return value;
+                    }),
+                subject: Yup.string().required('Matéria obrigatória'),
+                bio: Yup.string().required('Biografia obrigatória'),
+            });
 
-            <Textarea name="bio" value={data.bio} label="Biografia" onChange={observableChangeDataForm} />
+            const schema1 = Yup.object().shape({
+                schedules: Yup.array().of(
+                    Yup.object().shape({
+                        from: Yup.string().required('form obrigatória'),
+                        to: Yup.string().required('to obrigatória'),
+                        week_day: Yup.string()
+                            .required('Dia da semana obrigatória')
+                            .matches(/[0-6]/, 'Dia da semana inválido'),
+                    }),
+                ),
+            });
 
-            <legend>Sobre a aula</legend>
+            await Promise.all([
+                schemaGeral.validate(data, {
+                    abortEarly: false,
+                }),
+                schema1.validate(
+                    { schedules: scheduleItems },
+                    { abortEarly: false },
+                ),
+            ]);
 
-            <Select
-              name="subject"
-              label="Matéria"
-              value={data.subject}
-              onChange={observableChangeDataForm}
-              options={optionsSubject}
-            />
+            try {
+                const params = { ...data, schedules: scheduleItems };
 
-            <Input name="cost" defaultValue={data.cost} label="Custo da sua hora por aula" onChange={observableChangeDataForm} />
+                const { data: response } = await api.post('classes', params);
 
-          </fieldset>
+                formRef.current.reset();
 
-          <fieldset>
-            <legend>
-              Horários disponíveis
+                addToast({
+                    title: 'Cadastro realizado com sucesso!',
+                    type: 'success',
+                });
+            } catch (err) {
+                addToast({
+                    title: 'Oops, algo de errado ocorreu!',
+                    type: 'error',
+                    description: err?.message || undefined,
+                });
+            }
+        } catch (err) {
+            const errors = formUtils.yupValidationErros(err);
+            formRef.current?.setErrors(errors);
+        }
+    }, [scheduleItems, data, addToast]);
 
-              <button type="button" onClick={addSheduleItemHandle}>+ Novo Horário</button>
+    const observableChangeDataForm = useCallback(
+        (
+            e: ChangeEvent<
+                HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+            >,
+        ) => {
+            const { value, name } = e.currentTarget;
+            setData({ ...data, [name]: value });
+        },
+        [data],
+    );
 
-            </legend>
+    const observableChangescheduleForm = useCallback(
+        (
+            e: ChangeEvent<HTMLSelectElement | HTMLInputElement>,
+            position: number,
+        ) => {
+            const { value, name } = e.currentTarget;
 
-            {sheduleItems.map((shedule, index) => (
-              <ScheduleItem key={shedule.week_day}>
-                <Select
-                  name="week_day"
-                  label="Dia da semana"
-                  value={shedule.week_day}
-                  onChange={(e) => observableChangeSheduleForm(e, index)}
-                  options={DateUtils.diasSemana()}
-                />
-                <Input value={shedule.from} name="from" onChange={(e) => observableChangeSheduleForm(e, index)} label="Das" type="time" />
-                <Input value={shedule.to} name="to" onChange={(e) => observableChangeSheduleForm(e, index)} label="Até" type="time" />
-              </ScheduleItem>
-            ))}
+            const newschedules = scheduleItems.map((scheduleItem, index) => {
+                if (index === position) {
+                    return { ...scheduleItem, [name]: value };
+                }
 
-          </fieldset>
+                return scheduleItem;
+            });
 
-          <footer>
-            <p>
-              <img src={warningIcon} alt="Aviso importante" />
-              Importante!
-              {' '}
-              <br />
-              Preencha todos os dados
-            </p>
-            <button type="submit">
-              Salvar cadastro
-            </button>
-          </footer>
+            setscheduleItems(newschedules);
+        },
+        [scheduleItems],
+    );
 
-        </form>
+    if (!classes) return <h1>Sem Matérias no momento!</h1>;
 
-      </Main>
-    </PageTeacherForm>
-  );
+    const optionsSubject = classes.map(classe => {
+        return { value: classe.subject, label: classe.subject };
+    });
+
+    return (
+        <>
+            <Layout title="Proffy Area">
+                <PageTeacherForm>
+                    <PageHeader
+                        title="Que incrível que você quer dar aulas."
+                        description="O primeiro passo é preencher esse formulário de inscrição"
+                    />
+                    <Main>
+                        <Form ref={formRef} onSubmit={createHandle}>
+                            <fieldset>
+                                <legend>Seus dados</legend>
+
+                                <Input
+                                    istooltip
+                                    name="name"
+                                    defaultValue={data.name}
+                                    label="Nome completo"
+                                    onChange={observableChangeDataForm}
+                                />
+
+                                <Input
+                                    istooltip
+                                    name="avatar"
+                                    defaultValue={data.avatar}
+                                    label="Avatar"
+                                    onChange={observableChangeDataForm}
+                                />
+
+                                <InputMask
+                                    istooltip
+                                    name="whatsapp"
+                                    mask="(99) 9 9999-9999"
+                                    type="tel"
+                                    defaultValue={data.whatsapp}
+                                    label="WhatsApp"
+                                    onChange={observableChangeDataForm}
+                                />
+
+                                <Textarea
+                                    istooltip
+                                    name="bio"
+                                    defaultValue={data.bio}
+                                    label="Biografia"
+                                    onChange={observableChangeDataForm}
+                                />
+
+                                <legend>Sobre a aula</legend>
+
+                                <Select
+                                    istooltip
+                                    name="subject"
+                                    label="Matéria"
+                                    defaultValue={data.subject}
+                                    onChange={observableChangeDataForm}
+                                    options={optionsSubject}
+                                />
+
+                                <InputNumber
+                                    istooltip
+                                    format={
+                                        formUtils.inputMaskedCustom
+                                            .currencyFormatterPTBR
+                                    }
+                                    name="cost"
+                                    defaultValue={data.cost}
+                                    label="Custo da sua hora por aula"
+                                    onChange={observableChangeDataForm}
+                                />
+                            </fieldset>
+
+                            <fieldset>
+                                <legend>
+                                    Horários disponíveis
+                                    <button
+                                        type="button"
+                                        onClick={addscheduleItemHandle}
+                                    >
+                                        + Novo Horário
+                                    </button>
+                                </legend>
+
+                                {scheduleItems.map((schedule, index) => (
+                                    <ScheduleItem key={`${uuid()}`}>
+                                        <Scope path={`schedules[${index}]`}>
+                                            <Select
+                                                istooltip
+                                                name="week_day"
+                                                label="Dia da semana"
+                                                defaultValue={schedule.week_day}
+                                                onChange={e =>
+                                                    observableChangescheduleForm(
+                                                        e,
+                                                        index,
+                                                    )
+                                                }
+                                                options={dateUtils.diasDaSemana()}
+                                            />
+                                            <Input
+                                                istooltip
+                                                defaultValue={schedule.from}
+                                                name="from"
+                                                onChange={e =>
+                                                    observableChangescheduleForm(
+                                                        e,
+                                                        index,
+                                                    )
+                                                }
+                                                label="Das"
+                                                type="time"
+                                            />
+                                            <Input
+                                                istooltip
+                                                defaultValue={schedule.to}
+                                                name="to"
+                                                onChange={e =>
+                                                    observableChangescheduleForm(
+                                                        e,
+                                                        index,
+                                                    )
+                                                }
+                                                label="Até"
+                                                type="time"
+                                            />
+                                        </Scope>
+                                    </ScheduleItem>
+                                ))}
+                            </fieldset>
+
+                            <footer>
+                                <p>
+                                    <img
+                                        src={warningIcon}
+                                        alt="Aviso importante"
+                                    />
+                                    Importante!
+                                    <br />
+                                    Preencha todos os dados
+                                </p>
+                                <button type="submit">Salvar cadastro</button>
+                            </footer>
+                        </Form>
+                    </Main>
+                </PageTeacherForm>
+            </Layout>
+        </>
+    );
 };
 
-
 export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await api.get('/classes/all');
+    const { data } = await api.get('/classes/all');
 
-  return {
-    props: { classes: data },
-    revalidate: 1
-  };
+    return {
+        props: { classes: data },
+        revalidate: 1,
+    };
 };
 
 export default TeacherForm;

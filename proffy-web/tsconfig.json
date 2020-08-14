@@ -24,7 +24,9 @@
       "@styles/*": ["./src/styles/*"],
       "@services/*": ["./src/services/*"],
       "@static/*": ["./public/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@context/*": ["./src/context/*"]
     }
   },
   "include": [

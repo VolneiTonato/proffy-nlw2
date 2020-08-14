@@ -6,9 +6,8 @@ export const PageLanding = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    color: ${(props) => props.theme.colors.colorTextInPrimary};
-    background: ${(props) => props.theme.colors.colorPrimary};
-
+    color: ${props => props.theme.colors.colorTextInPrimary};
+    background: ${props => props.theme.colors.colorPrimary};
 `;
 
 export const PageLandingContent = styled.div`
@@ -17,22 +16,20 @@ export const PageLandingContent = styled.div`
         display: grid;
         grid-template-rows: 350px 1fr;
         grid-template-columns: 2fr 1fr 1fr;
-        grid-template-areas: 
-            "logo hero hero"
-            "buttons buttons total";
+        grid-template-areas:
+            'logo hero hero'
+            'buttons buttons total';
     }
 `;
 
 export const LogoContainer = styled.div`
-
-    
     text-align: center;
     margin-bottom: 3.2rem;
 
     img {
         height: 10rem;
     }
-    
+
     h2 {
         font-weight: 500;
         font-size: 2.4rem;
@@ -44,18 +41,17 @@ export const LogoContainer = styled.div`
         grid-area: logo;
         align-self: center;
         margin: 0;
-        text-align:left;
+        text-align: left;
 
-        h2{
+        h2 {
             text-align: initial;
             font-size: 3.6rem;
         }
 
-        img{
+        img {
             height: 100%;
         }
     }
-
 `;
 
 export const HeroImage = styled.img`
@@ -68,7 +64,6 @@ export const HeroImage = styled.img`
 `;
 
 export const ButtonContainer = styled.div`
-    
     display: flex;
     justify-content: center;
     margin: 3.2rem 0;
@@ -80,52 +75,49 @@ export const ButtonContainer = styled.div`
 `;
 
 interface LinkProps {
-    typeText: 'study' | 'giveClasses'
+    typeText: 'study' | 'giveClasses';
 }
 
 export const LinkButton = styled.a<LinkProps>`
-    
     cursor: pointer;
     width: 30rem;
     height: 10.4rem;
     border-radius: 0.8rem;
-    font: 700 2.0rem ${(props) => props.theme.getFont('Archivo')};
+    font: 700 2rem ${props => props.theme.getFont('Archivo')};
     display: flex;
     justify-content: center;
     align-items: center;
     text-decoration: none;
     transition: background-color 0.2s;
-    color: ${(props) => props.theme.colors.colorButtonText};
-    
+    color: ${props => props.theme.colors.colorButtonText};
 
-    background: ${(props) => (props.typeText === 'study' ? props.theme.colors.colorPrimaryLighter : props.theme.colors.colorSecondary)};
+    background: ${props =>
+        props.typeText === 'study'
+            ? props.theme.colors.colorPrimaryLighter
+            : props.theme.colors.colorSecondary};
 
-    &:hover{
-        background: ${(props) => (props.typeText === 'study' ? props.theme.colors.colorPrimaryLight : props.theme.colors.colorSecondaryDark)};
+    &:hover {
+        background: ${props =>
+            props.typeText === 'study'
+                ? props.theme.colors.colorPrimaryLight
+                : props.theme.colors.colorSecondaryDark};
     }
 
-    &:first-child{
-        margin-right: 1.6rem;    
+    &:first-child {
+        margin-right: 1.6rem;
     }
 
     @media (min-width: 1100px) {
         font-size: 2.4rem;
     }
-    
 
-    
-
-    img{
+    img {
         width: 4rem;
         margin-right: 2.4rem;
     }
-
-    
-
 `;
 
-export const TotalConnection = styled.span`   
-    
+export const TotalConnection = styled.span`
     font-size: 1.4rem;
     display: flex;
     justify-content: center;
@@ -136,7 +128,7 @@ export const TotalConnection = styled.span`
         justify-self: end;
     }
 
-    img{
+    img {
         margin-left: 0.8rem;
     }
 `;
