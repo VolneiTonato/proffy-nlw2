@@ -10,18 +10,33 @@
 
 ---
 
-## 🚀 Sobre a Next Level Week #02: 
+## 🚀 Proffy Front-end: 
 
-Durante a primeira semana de agosto de 2020, a Rocketseat disponibilizou um curso para desenvolver uma aplicação completa do 0 comas as tecnologias React, Node e React Native.  Nesta primeira etapa foi desenvolvido com React o site da aplicação. 
+Durante a primeira semana de agosto de 2020, a Rocketseat disponibilizou um curso para desenvolver uma aplicação completa do 0 comas as tecnologias React, Node e React Native.  Nesta estapa foi desenvolvida a aplicação web usando React.
 
 
-## ➕ Plus:
 
-Este projeto em específico foi desenvolvido usando o Nextjs para dar um passo a mais e já incluir a parte de SEO com reactjs.
+## :fire: Tecnologias:
 
-## 📚 Sobre o projeto:
+- React
+- Nextjs
+- JavaScript
+- Typescript
+
+## :bulb: Plus:
+
+- Nextjs para páginas estáticas e SEO
+- Toast para notificação
+- @unform
+- Context Api
+- RNprogress: Barra de progresso no header para carregamento da página.
+
+
+## :ledger: Sobre o projeto:
 
 O projeto Proffy é uma plataforma de estudos online. Através de uma busca, o usuário pode encontrar aulas de diferentes matérias. As matérias sugeridas para o usuário são obtidas por meio de uma busca no site.
+
+<img src="./assets/proffy-web.gif" alt="projeto" />
 
 ## :memo: Licença
 
