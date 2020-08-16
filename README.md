@@ -2,7 +2,7 @@
     <img alt="NextLevelWeek" title="#NextLevelWeek" src="./assets/project.png" width="250px" />
 </h1>
 <h1 align="center">Next Level Week #02</h1>
-<p align="center">Projeto <strong>Proffy</strong> desenvolvido durante a Next Level Week #2 da <a href="https://rocketseat.com.br">Rocketseat</a> 🚀</p>
+<p align="center">Projeto<strong>Proffy</strong> desenvolvido durante a Next Level Week #2 da <a href="https://rocketseat.com.br">Rocketseat</a> 🚀</p>
 <p align="center">
 <a href="https://rocketseat.com.br">
     <img alt="Made by Rocketseat" src="https://img.shields.io/badge/made%20by-Rocketseat-%237159C1">
