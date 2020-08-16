@@ -14,7 +14,10 @@ interface Teacher {
         avatar: string;
         whatsapp: string;
     };
-    subject: string;
+    subject: {
+        id: string;
+        subject: string;
+    };
     cost: number;
 }
 
@@ -36,7 +39,7 @@ const TeacherItem: NextPage<TeacherItemProps> = ({ teacher }) => {
                 <img src={teacher.user?.avatar} alt={teacher.user?.name} />
                 <div>
                     <strong>{teacher.user?.name}</strong>
-                    <span>{teacher.subject}</span>
+                    <span>{teacher.subject?.subject}</span>
                 </div>
             </header>
 
@@ -55,7 +58,7 @@ const TeacherItem: NextPage<TeacherItemProps> = ({ teacher }) => {
                 <a
                     onClick={handleCreateConnection}
                     target="_blank"
-                    href={`https://wa.me/${teacher.user?.whatsapp}`}
+                    href={`https://wa.me/+55${teacher.user?.whatsapp}`}
                 >
                     <img src={whatsappIcon} alt="whatsapp" />
                     Entrar em contato
