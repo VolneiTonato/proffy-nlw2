@@ -6,7 +6,6 @@ import React, {
     useCallback,
 } from 'react';
 import { useField } from '@unform/core';
-import { FiAlertCircle } from 'react-icons/fi';
 
 import { InputBlock, IconError, Error, ContainerInput } from '../styles';
 

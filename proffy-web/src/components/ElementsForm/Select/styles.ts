@@ -86,17 +86,13 @@ export const SelectBlock = styled.div<SelectBlockProps>`
         outline: 0;
         padding: 0 1.6rem;
         background: ${props => props.theme.colors.colorInputBackground};
+        font: 1.6rem ${props => props.theme.getFont('Archivo')};
 
         select {
             flex: 1;
-            font: 1.6rem ${props => props.theme.getFont('Archivo')};
             border: 0;
             outline: 0;
             background: ${props => props.theme.colors.colorInputBackground};
-        }
-
-        svg {
-            margin-right: 0px;
         }
     }
 
