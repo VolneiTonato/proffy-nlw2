@@ -1,8 +1,9 @@
 import { getRepository, getConnection } from 'typeorm';
-import User from '../../entities/User';
-import Classe from '../../entities/Classe';
-import Schedule from '../../entities/Schedule';
-import TimeUtils from '../../utils/timeUtils';
+import Subject from '@entities/Subject';
+import User from '@entities/User';
+import Classe from '@entities/Classe';
+import Schedule from '@entities/Schedule';
+import TimeUtils from '@utils/timeUtils';
 
 interface ScheduleDTO {
     week_day: number;
@@ -57,26 +58,23 @@ export default class CreateUserClassesScheduleService {
 
                 if (!user) throw new Error(`User inválido!`);
 
-                let classe: Classe = {} as Classe;
-
-                const classeRepository = getRepository(Classe);
-
-                const classeExists = await classeRepository.findOne({
-                    subject: this.userClasseSchedule.subject,
+                const subject = await getRepository(Subject).findOne({
+                    id: this.userClasseSchedule.subject,
                 });
 
-                if (!classeExists) {
-                    const classeSave = await transactionalEntityManager.save(
-                        getRepository(Classe).create({
-                            cost: this.userClasseSchedule.cost,
-                            userId: user.id,
-                            subject: this.userClasseSchedule.subject,
-                        }),
-                    );
-                    classe = classeSave;
-                } else {
-                    classe = classeExists;
-                }
+                if (!subject) throw new Error(`Matéria inválida!`);
+
+                // const classe: Classe = {} as Classe;
+
+                // const classeRepository = getRepository(Classe);
+
+                const classeSave = await transactionalEntityManager.save(
+                    getRepository(Classe).create({
+                        cost: this.userClasseSchedule.cost,
+                        userId: user.id,
+                        subjectId: subject.id,
+                    }),
+                );
 
                 const schedules = this.userClasseSchedule.schedules.map(
                     ({ from, to, week_day }) => {
@@ -85,7 +83,7 @@ export default class CreateUserClassesScheduleService {
                         schedule.from = TimeUtils.convertHourToMinutes(from);
                         schedule.to = TimeUtils.convertHourToMinutes(to);
                         schedule.weekDay = week_day;
-                        schedule.classId = classe.id;
+                        schedule.classId = classeSave.id;
 
                         return schedule;
                     },
@@ -97,7 +95,7 @@ export default class CreateUserClassesScheduleService {
 
                 return {
                     user,
-                    classe,
+                    classeSave,
                     schedulesSave,
                 };
             },

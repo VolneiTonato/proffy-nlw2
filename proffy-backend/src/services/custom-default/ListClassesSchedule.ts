@@ -1,7 +1,7 @@
-import { getRepository, Like } from 'typeorm';
-import Classe from '../../entities/Classe';
-import TimeUtils from '../../utils/timeUtils';
-import Schedule from '../../entities/Schedule';
+import { getRepository } from 'typeorm';
+import Classe from '@entities/Classe';
+import TimeUtils from '@utils/timeUtils';
+import Schedule from '@entities/Schedule';
 
 export interface QueryDTO {
     week_day: string;
@@ -18,8 +18,9 @@ export default class ListClassesScheduleService {
         const classes = await getRepository(Classe)
             .createQueryBuilder()
             .innerJoinAndSelect('Classe.user', 'User')
-            .where('Classe.subject LIKE :subject', {
-                subject: `%${this.queryDTO.subject}%`,
+            .innerJoinAndSelect('Classe.subject', 'Subject')
+            .where('Subject.id = :subject', {
+                subject: `${this.queryDTO.subject}`,
             })
             .andWhere(
                 dq => {

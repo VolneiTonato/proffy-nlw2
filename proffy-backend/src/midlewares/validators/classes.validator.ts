@@ -4,7 +4,7 @@ import numberUtils from '@utils/NumberUtils';
 export const ValidateClassesCreateUserClasseScheduleFilter = (): ValidationChain[] => {
     return [
         query('week_day').notEmpty().isNumeric(),
-        query('subject').notEmpty(),
+        query('subject').notEmpty().isUUID(4),
         query('time')
             .notEmpty()
             .custom(value => {
@@ -56,11 +56,11 @@ export const ValidateClassesCreateUserClasseScheduleCreate = (): ValidationChain
 
                 return newValue;
             }),
-        body('subject').notEmpty(),
+        body('subject').notEmpty().isUUID(4),
         body('schedules')
             .isArray()
             .notEmpty()
-            .withMessage('Matéria obrigatória'),
+            .withMessage('Horários obrigatório'),
         ...validatorsSchedules,
     ];
 };

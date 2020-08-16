@@ -7,21 +7,19 @@ import {
     JoinColumn,
     ManyToOne,
     OneToMany,
-    OneToOne,
-    BeforeInsert,
-    BeforeUpdate,
 } from 'typeorm';
 
 import User from './User';
 import Schedule from './Schedule';
+import Subject from './Subject';
 
 @Entity({ name: 'classes' })
 class Classe {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column()
-    subject: string;
+    @Column({ name: 'subject_id' })
+    subjectId: string;
 
     @Column()
     cost: number;
@@ -39,14 +37,12 @@ class Classe {
     @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
     user: User;
 
+    @ManyToOne(() => Subject, { eager: true })
+    @JoinColumn({ name: 'subject_id', referencedColumnName: 'id' })
+    subject: Subject;
+
     @OneToMany(() => Schedule, schedule => schedule.classe)
     schedules: Schedule[];
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    transformUppercase() {
-        this.subject = this.subject.toUpperCase();
-    }
 }
 
 export default Classe;

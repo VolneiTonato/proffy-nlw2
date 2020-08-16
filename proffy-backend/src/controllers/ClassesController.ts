@@ -25,7 +25,7 @@ export default class ClassesController {
     async showAll(req: Request, res: Response, next: NextFunction) {
         try {
             const classes = await getRepository(Classe).find({
-                select: ['id', 'subject'],
+                select: ['id', 'subjectId'],
             });
 
             res.json(classes);

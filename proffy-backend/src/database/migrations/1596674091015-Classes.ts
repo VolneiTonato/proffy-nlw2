@@ -12,12 +12,7 @@ export class Classes1596674091015 implements MigrationInterface {
                 generationStrategy: 'uuid',
                 default: 'uuid_generate_v4()',
             },
-            {
-                name: 'subject',
-                type: 'varchar',
-                isUnique: true,
-                isNullable: false,
-            },
+
             {
                 name: 'cost',
                 type: 'decimal(10,2)',
