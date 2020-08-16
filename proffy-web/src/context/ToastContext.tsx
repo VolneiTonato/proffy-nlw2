@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useCallback, useState } from 'react';
 import ToastNotification from '@components/ToastNotification';
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 
 interface ToastContextData {
     addToast(message: Omit<ToastMessage, 'id'>): void;
