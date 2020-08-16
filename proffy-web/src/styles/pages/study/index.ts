@@ -43,7 +43,7 @@ export const SeachTeachers = styled(Form)`
         grid-template-columns: repeat(4, 1fr);
         column-gap: 16px;
         position: absolute;
-        bottom: -44px;
+        bottom: -28px;
     }
 `;
 

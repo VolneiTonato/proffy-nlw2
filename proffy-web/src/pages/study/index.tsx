@@ -1,10 +1,4 @@
-import React, {
-    useCallback,
-    useState,
-    useRef,
-    useEffect,
-    useContext,
-} from 'react';
+import React, { useCallback, useState, useRef } from 'react';
 import PageHeader from '@components/PageHeader';
 import Layout from '@components/Layout';
 import Input from '@components/ElementsForm/Inputs/Input';
@@ -27,7 +21,7 @@ import {
     TeacerMainContainerMessage,
 } from '@styles-page/study';
 
-interface ClasseProps {
+interface SubjectsProps {
     id: string;
     subject: string;
 }
@@ -39,10 +33,10 @@ interface StateProps {
 }
 
 interface TeacherListProps {
-    classes: ClasseProps[];
+    subjects: SubjectsProps[];
 }
 
-const TeacherList: NextPage<TeacherListProps> = ({ classes }) => {
+const TeacherList: NextPage<TeacherListProps> = ({ subjects }) => {
     const { startProgress, stopProgress } = useNProgress();
     const [isVisibled, setIsVisibled] = useState(false);
     const [messageIsVisibled, setMessageIsVisibled] = useState(false);
@@ -52,7 +46,7 @@ const TeacherList: NextPage<TeacherListProps> = ({ classes }) => {
         time: '',
     });
     const [teachers, setTeachers] = useState([]);
-    const { addToast, removeToast } = useToast();
+    const { addToast } = useToast();
 
     const formRef = useRef<FormHandles>(null);
 
@@ -95,24 +89,24 @@ const TeacherList: NextPage<TeacherListProps> = ({ classes }) => {
 
             if (!data?.length) setMessageIsVisibled(true);
         } catch (err) {
-            const errors = formUtils.yupValidationErros(err);
-            formRef.current?.setErrors(errors);
             addToast({
                 title: 'Oops, Ocorreu algo de errado.',
                 description: 'Informe todos os campos para a pesquisa.',
                 type: 'error',
             });
+            const errors = formUtils.yupValidationErros(err);
+            formRef.current?.setErrors(errors);
         } finally {
             setIsVisibled(false);
             stopProgress();
         }
-    }, [state, startProgress, stopProgress]);
+    }, [state, startProgress, stopProgress, addToast]);
 
     let optionsSubject = [];
 
-    if (Array.isArray(classes))
-        optionsSubject = classes.map(classe => {
-            return { value: classe.subject, label: classe.subject };
+    if (Array.isArray(subjects))
+        optionsSubject = subjects.map(subject => {
+            return { value: subject.id, label: subject.subject };
         });
 
     return (
@@ -174,10 +168,10 @@ const TeacherList: NextPage<TeacherListProps> = ({ classes }) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-    const { data } = await api.get('/classes/all');
+    const { data } = await api.get('/subjects');
 
     return {
-        props: { classes: data },
+        props: { subjects: data },
         revalidate: 1,
     };
 };

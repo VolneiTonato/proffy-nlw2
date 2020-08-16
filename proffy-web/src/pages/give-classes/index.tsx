@@ -15,7 +15,7 @@ import Layout from '@components/Layout';
 import { FormHandles, Scope } from '@unform/core';
 import { Form } from '@unform/web';
 import formUtils from '@utils/form';
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 import numberUtils from '@utils/number';
 import { useToast } from '@context/ToastContext';
 
@@ -34,16 +34,16 @@ interface IDataForm {
     cost: number;
 }
 
-interface ClasseProps {
+interface SubjectProps {
     id: string;
     subject: string;
 }
 
 interface TeacherFormProps {
-    classes: ClasseProps[];
+    subjects: SubjectProps[];
 }
 
-const TeacherForm: React.FC<TeacherFormProps> = ({ classes }) => {
+const TeacherForm: React.FC<TeacherFormProps> = ({ subjects }) => {
     const { addToast } = useToast();
     const [scheduleItems, setscheduleItems] = useState<Ischedule[]>([
         { from: '', to: '', week_day: '' },
@@ -133,6 +133,10 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ classes }) => {
         } catch (err) {
             const errors = formUtils.yupValidationErros(err);
             formRef.current?.setErrors(errors);
+            addToast({
+                title: 'Oops, algo de errado ocorreu!',
+                type: 'error',
+            });
         }
     }, [scheduleItems, data, addToast]);
 
@@ -168,10 +172,10 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ classes }) => {
         [scheduleItems],
     );
 
-    if (!classes) return <h1>Sem Matérias no momento!</h1>;
+    if (!subjects) return <h1>Sem Matérias no momento!</h1>;
 
-    const optionsSubject = classes.map(classe => {
-        return { value: classe.subject, label: classe.subject };
+    const optionsSubject = subjects.map(subject => {
+        return { value: subject.id, label: subject.subject };
     });
 
     return (
@@ -268,8 +272,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ classes }) => {
                                                     observableChangescheduleForm(
                                                         e,
                                                         index,
-                                                    )
-                                                }
+                                                    )}
                                                 options={dateUtils.diasDaSemana()}
                                             />
                                             <Input
@@ -280,8 +283,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ classes }) => {
                                                     observableChangescheduleForm(
                                                         e,
                                                         index,
-                                                    )
-                                                }
+                                                    )}
                                                 label="Das"
                                                 type="time"
                                             />
@@ -293,8 +295,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ classes }) => {
                                                     observableChangescheduleForm(
                                                         e,
                                                         index,
-                                                    )
-                                                }
+                                                    )}
                                                 label="Até"
                                                 type="time"
                                             />
@@ -324,10 +325,10 @@ const TeacherForm: React.FC<TeacherFormProps> = ({ classes }) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-    const { data } = await api.get('/classes/all');
+    const { data } = await api.get('/subjects');
 
     return {
-        props: { classes: data },
+        props: { subjects: data },
         revalidate: 1,
     };
 };
